@@ -1,6 +1,9 @@
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.*;
 
 public class TextEditor implements ActionListener {
     JFrame frame;
@@ -64,7 +67,14 @@ public class TextEditor implements ActionListener {
         paste.addActionListener(this);
         close.addActionListener(this);
 
-        frame.add(textArea);
+        JScrollPane scrollPane = new JScrollPane(textArea, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        JPanel panel = new JPanel();
+        panel.setBorder(new EmptyBorder(5, 5, 5,5));
+        panel.setLayout(new BorderLayout(0, 0));
+        panel.add(scrollPane);
+
+        frame.add(panel);
+
         frame.setJMenuBar(menuBar);
         frame.setBounds(100, 100, 400, 400);
         frame.setTitle("Text Editor");
@@ -79,13 +89,43 @@ public class TextEditor implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         //Now will get some actions and perform the actions according to the stimuli
         if(e.getSource() == newFile){
-
+            TextEditor textEditor = new TextEditor();
         }
         if(e.getSource() == openFile){
+            JFileChooser fileChooser = new JFileChooser();
+            int chooseOption = fileChooser.showOpenDialog(null);
 
+            if(chooseOption == JFileChooser.APPROVE_OPTION){
+                File file = fileChooser.getSelectedFile();
+                String filePath = file.getPath();
+                try {
+                    BufferedReader bufferedReader = new BufferedReader(new FileReader(filePath));
+                    String intermediate = "", output = "";
+                    while((intermediate = bufferedReader.readLine())!=null){
+                        output +=  intermediate + "\n";
+                    }
+                    textArea.setText(output);
+                } catch (Exception exception){
+
+                }
+            }
         }
         if(e.getSource() == saveFile) {
+            JFileChooser fileChooser = new JFileChooser();
+            int chooseOption = fileChooser.showSaveDialog(null);
 
+            if(chooseOption == JFileChooser.APPROVE_OPTION){
+                File file = new File(fileChooser.getSelectedFile().getAbsoluteFile()+".txt");
+                String filePath = file.getPath();
+                try{
+                    BufferedWriter outfile = null;
+                    outfile = new BufferedWriter(new FileWriter(file));
+                    textArea.write(outfile);
+                    outfile.close();
+                }catch (Exception exception){
+                    System.out.print(exception);
+                }
+            }
         }
         if(e.getSource() == cut){
             textArea.cut();
